@@ -16,7 +16,16 @@ body {
   padding: 40px 15px;
   text-align: center;
 }
+.alpha-chosen {
+  background-color: #fd3;
+  color: black;
+  font-weight: bolder;
+  padding-left: 1ex;
+  padding-right: 1ex;
+}
 </style>
+<script language="JavaScript">
+</script>
 </head>
 <body>
 
@@ -31,13 +40,13 @@ body {
       </button>
       <a class="navbar-brand" href="#">阿美語萌典</a>
     </div>
-    <form class="navbar-form" role="search" method="get" action="#">
+    <form class="navbar-form" role="search" method="get">
       <div class="input-group col-md-10">
-        <input type="text" class="form-control" placeholder="請輸入阿美語、英文或漢文，再按 [Enter]"/>
+        <input name="query" type="text" class="form-control" placeholder="請輸入阿美語、英文或漢文，再按 [Enter]"/>
         <div class="input-group-btn">
           <button class="btn btn-default" type="submit">
             <span class="sr-only">Search</span>
-            <span class="glyphicon glyphicon-search"aria-hidden="true"></span>
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
           </button>
         </div>
       </div>
@@ -45,6 +54,15 @@ body {
   </div>
 </nav>
 
+<?php
+if(isset($_GET['query'])) {
+  $query = trim($_GET['query']);
+  $q = substr($query, 2);
+} else {
+  $query = '';
+  $q     = '';
+}
+?>
 
 <div class="container">
   <div class="row">
@@ -52,61 +70,57 @@ body {
 <?php
 $ord = array('a', 'c', 'd', 'f', 'h', 'i', 'k', 'l', 'm', 'n', 'ng', 'o', 'p', "'", 'r', 's', 't', 'w', 'y');
 foreach($ord as $o) {
-  print "<a href=\"?query=__$o\">".strtoupper($o)."</a>&nbsp;&nbsp;\n";
+  $b = ($o === $q) ? 'alpha-chosen' : '';
+  print "<a href=\"?query=__$o\" class=\"$b\">".strtoupper($o)."</a>&nbsp;&nbsp;\n";
 }
 ?>
     </div>
   </div>
 </div>
 <?php
-// $path = explode('/', $_SERVER['PHP_SELF']);
-// array_pop($path);
-// $path = implode('/', $path);
 // $path = "http://localhost:8888/";
-$path = "https://amis.moedict.tw/";
-if(isset($_GET['query']) && !empty($_GET['query'])) {
-  $query = $_GET['query'];
+$path = "https://amis.moedict.tw/word.php";
+if(!empty($query)) {
+  $query = str_replace('ng', 'g', $query);
   $pdo = new PDO("sqlite:dict-amis.sq3");
 
-?>
-<div class="container">
-  <table class="table">
-    <thead>
-      <tr><th>單詞</th><th>例句</th><th>英文解釋</th><th>漢文解釋</th></tr>
-    </thead>
-    <tbody>
-<?php
-  function query_and_show($sql, $head = false) {
+  function query_dict($sql, $head = false) {
     global $query, $path, $pdo;
     $st = $pdo->prepare($sql);
     if($head === true) {
-      if($query == '__n') {
-        $st = $pdo->prepare("SELECT * FROM amis WHERE title LIKE 'n%' AND title NOT LIKE 'ng%' ORDER BY title");
-        $st->execute();
-      } elseif($query == '__ng') {
-        $st->execute(array(':q' => "ng%"));
-      } else {
-        $q = substr($query, 2, 1);
-        $st->execute(array(':q' => "$q%"));
-      }
+      $q = substr($query, 2, 1);
+      $st->execute(array(':q' => "$q%"));
     } else {
       $st->execute(array(':q' => "%$query%"));
     }
     $result = $st->setFetchMode(PDO::FETCH_NUM);
+    $ret = array();
     while($row = $st->fetch()) {
-      $amis = "<a href=\"$path#;$row[0]\">$row[0]</a>";
-      print "<tr><td>$amis</td><td>$row[1]</td><td>$row[2]</td><td>$row[3]</td></tr>\n";
+      $ret[] = "<a href=\"$path?$row[0]\">".str_replace('g', 'ng', $row[0])."</a>";
     }
+    return $ret;
   }
   if(substr($query, 0, 2) == '__') {
-    query_and_show("SELECT * FROM amis WHERE title LIKE :q ORDER BY title", true);
+    $ret = query_dict("SELECT DISTINCT title FROM amis WHERE title LIKE :q ORDER BY title", true);
   } else {
-    query_and_show("SELECT * FROM amis WHERE title LIKE :q ORDER BY title");
-    query_and_show("SELECT * FROM amis WHERE example LIKE :q OR en LIKE :q OR cmn LIKE :q LIMIT 100");
+    $ret1 = query_dict("SELECT DISTINCT title FROM amis WHERE title LIKE :q ORDER BY title");
+    $ret2 = query_dict("SELECT DISTINCT title FROM amis WHERE example LIKE :q OR en LIKE :q OR cmn LIKE :q LIMIT 100");
+    $ret = array_merge($ret1, $ret2);
   }
+  $percol = ceil(count($ret) / 3);
 ?>
-    </tbody>
-  </table>
+<div class="container">
+  <div class="row">
+    <div class="col-md-3">
+<?php for($i = 0; $i < $percol; $i++) { echo $ret[$i]."<br />\n"; } ?>
+    </div>
+    <div class="col-md-3">
+<?php for($i = $percol; $i < $percol*2; $i++) { echo $ret[$i]."<br />\n"; } ?>
+    </div>
+    <div class="col-md-3">
+<?php for($i = $percol*2; $i < count($ret); $i++) { echo $ret[$i]."<br />\n"; } ?>
+    </div>
+  </div>
 </div>
 <?php
 }
