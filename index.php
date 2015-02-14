@@ -1,12 +1,5 @@
 <?php
-require_once 'config.php';
-if(isset($_SESSION['access_token']) && $_SESSION['access_token']) {
-  $client->setAccessToken($_SESSION['access_token']);
-} else {
-  $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . '/oauth2callback.php';
-  header('Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL));
-  die();
-}
+// Put FB SDK here
 ?>
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -38,13 +31,33 @@ body {
 </script>
 </head>
 <body>
+<script>
+window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '345709408947794',
+    xfbml      : true,
+    version    : 'v2.2'
+  });
+};
+
+(function(d, s, id){
+   var js, fjs = d.getElementsByTagName(s)[0];
+   if (d.getElementById(id)) {return;}
+   js = d.createElement(s); js.id = id;
+   js.src = "//connect.facebook.net/en_US/sdk.js";
+   fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+
+FB.getLoginStatus(function(response) {
+  if(response.status === 'connected') {
+    console.log('Logged in.');
+  } else {
+    FB.login();
+  }
+});
+</script>
 
 <?php 
-$oauth2Service = new Google_Service_Oauth2($client);
-$userinfo = $oauth2Service->userinfo;
-echo "Userinfo = ";
-$avatar = $userinfo->get()['picture'];
-$given_name = $userinfo->get()['given_name'];
 
 include('header.php');
 if(isset($_GET['query'])) {
