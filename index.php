@@ -1,3 +1,13 @@
+<?php
+require_once 'config.php';
+if(isset($_SESSION['access_token']) && $_SESSION['access_token']) {
+  $client->setAccessToken($_SESSION['access_token']);
+} else {
+  $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . '/oauth2callback.php';
+  header('Location: ' . filter_var($redirect_uri, FILTER_SANITIZE_URL));
+  die();
+}
+?>
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -30,6 +40,12 @@ body {
 <body>
 
 <?php 
+$oauth2Service = new Google_Service_Oauth2($client);
+$userinfo = $oauth2Service->userinfo;
+echo "Userinfo = ";
+$avatar = $userinfo->get()['picture'];
+$given_name = $userinfo->get()['given_name'];
+
 include('header.php');
 if(isset($_GET['query'])) {
   $query = trim($_GET['query']);
@@ -40,6 +56,7 @@ if(isset($_GET['query'])) {
 }
 include('list-alphabet.php');
 ?>
+
 
 <?php
 // $path = "http://localhost:8888/";

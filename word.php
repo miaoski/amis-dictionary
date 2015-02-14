@@ -33,59 +33,93 @@ body {
 $q = '';
 include('header.php');
 include('list-alphabet.php');
-?>
 
-<!-- Sidebar -->
-     <div id="sidebar-wrapper">
-         <ul class="sidebar-nav">
-             <li class="sidebar-brand">
-                 <a href="#">
-                     Start Bootstrap
-                 </a>
-             </li>
-             <li>
-                 <a href="#">Dashboard</a>
-             </li>
-             <li>
-                 <a href="#">Shortcuts</a>
-             </li>
-             <li>
-                 <a href="#">Overview</a>
-             </li>
-             <li>
-                 <a href="#">Events</a>
-             </li>
-             <li>
-                 <a href="#">About</a>
-             </li>
-             <li>
-                 <a href="#">Services</a>
-             </li>
-             <li>
-                 <a href="#">Contact</a>
-             </li>
-         </ul>
-     </div>
-     <!-- /#sidebar-wrapper -->
-
-<div class="container">
-  <div class="row">
-    <div class="col-md-8 col-md-offset-2">
-<?php
-if(empty($query)) {
-  die();
+function tong($s) {
+  return str_replace('g', 'ng', $s);
 }
+function ton($s) {
+  return str_replace('ng', 'g', $s);
+}
+
+$mydialect = 'm';	// 一個人一種方言
 
 $pdo = new PDO("sqlite:dict-amis.sq3");
 
+$query = isset($_GET['w']) ? trim($_GET['w']) : '';
 $sql = "SELECT * FROM amis WHERE title=:q";
 $st = $pdo->prepare($sql);
 $st->execute(array(':q' => $query));
 $result = $st->setFetchMode(PDO::FETCH_NUM);
-while($row = $st->fetch()) {
-  print_r($row);
+$rows = $st->fetchAll();
+?>
+
+<div class="container">
+  <div class="row" style="background-color:#FFF">
+    <div class="col-md-3">
+    北部阿美
+    </div>
+    <div class="col-md-9">
+Lorem ipsum dolor sit amet, an sed scripta hendrerit efficiantur. Diceret laboramus id has, an habemus forensibus vim. Id quo nominavi accusamus voluptatibus. Eu semper evertitur eam. Velit facilis conclusionemque et sea, porro elitr repudiare vix id. Ea qui enim platonem adversarium.
+    </div>
+  </div>
+  <div class="row" style="background-color:#DDD">
+    <div class="col-md-3">
+    中部阿美
+    </div>
+    <div class="col-md-9">
+      <div class="row"><div class="col-md-12">
+      <input class="col-md-12" type="text" value="<?=htmlentities(tong($query))?>" name="amis-m"/>
+      </div></div>
+      <div class="row"><div class="col-md-12">
+<?php
+foreach($rows as $r) {
+  if(empty($r[1])) {
+    echo "$r[2]<br/>$r[3]\n";
+  }
 }
 ?>
+      </div></div>
+<?php
+foreach($rows as $r) {
+  if(!empty($r[1])) {
+      echo '<div class="row"><div class="col-md-12">';
+      echo '<input class="col-md-12" type="text" value="'.htmlentities(tong($r[1])).'" name="ex-m-1"/>';
+      echo '</div></div>';
+      echo '<div class="row"><div class="col-md-12">';
+      echo "$r[2]<br/>$r[3]";
+      echo '</div></div>';
+  }
+}
+?>
+    </div>
+  </div>
+  <div class="row" style="background-color:#FFF">
+    <div class="col-md-3">
+    海岸阿美
+    </div>
+    <div class="col-md-9">
+Lorem ipsum dolor sit amet, an sed scripta hendrerit efficiantur. Diceret laboramus id has, an habemus forensibus vim. Id quo nominavi accusamus voluptatibus. Eu semper evertitur eam. Velit facilis conclusionemque et sea, porro elitr repudiare vix id. Ea qui enim platonem adversarium.
+    </div>
+  </div>
+  <div class="row" style="background-color:#DDD">
+    <div class="col-md-3">
+    馬蘭阿美
+    </div>
+    <div class="col-md-9">
+Lorem ipsum dolor sit amet, an sed scripta hendrerit efficiantur. Diceret laboramus id has, an habemus forensibus vim. Id quo nominavi accusamus voluptatibus. Eu semper evertitur eam. Velit facilis conclusionemque et sea, porro elitr repudiare vix id. Ea qui enim platonem adversarium.
+    </div>
+  </div>
+  <div class="row" style="background-color:#FFF">
+    <div class="col-md-3">
+    恆春阿美
+    </div>
+    <div class="col-md-9">
+Lorem ipsum dolor sit amet, an sed scripta hendrerit efficiantur. Diceret laboramus id has, an habemus forensibus vim. Id quo nominavi accusamus voluptatibus. Eu semper evertitur eam. Velit facilis conclusionemque et sea, porro elitr repudiare vix id. Ea qui enim platonem adversarium.
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-3 col-md-offset-5">
+      <button type="submit" class="btn btn-default">送出修改</button>
     </div>
   </div>
 </div>

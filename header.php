@@ -10,7 +10,7 @@
       <a class="navbar-brand" href="#">阿美語萌典</a>
     </div>
     <form class="navbar-form" role="search" method="get" action="index.php">
-      <div class="input-group col-md-10">
+      <div class="input-group col-md-8">
         <input name="query" type="text" class="form-control" placeholder="請輸入阿美語、英文或漢文，再按 [Enter]"/>
         <div class="input-group-btn">
           <button class="btn btn-default" type="submit">
