@@ -29,32 +29,8 @@ body {
 </head>
 <body>
 
-<nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#">阿美語萌典</a>
-    </div>
-    <form class="navbar-form" role="search" method="get">
-      <div class="input-group col-md-10">
-        <input name="query" type="text" class="form-control" placeholder="請輸入阿美語、英文或漢文，再按 [Enter]"/>
-        <div class="input-group-btn">
-          <button class="btn btn-default" type="submit">
-            <span class="sr-only">Search</span>
-            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-          </button>
-        </div>
-      </div>
-    </form>
-  </div>
-</nav>
-
-<?php
+<?php 
+include('header.php');
 if(isset($_GET['query'])) {
   $query = trim($_GET['query']);
   $q = substr($query, 2);
@@ -62,24 +38,12 @@ if(isset($_GET['query'])) {
   $query = '';
   $q     = '';
 }
+include('list-alphabet.php');
 ?>
 
-<div class="container">
-  <div class="row">
-    <div class="col-md-6 col-md-offset-3">
-<?php
-$ord = array('a', 'c', 'd', 'f', 'h', 'i', 'k', 'l', 'm', 'n', 'ng', 'o', 'p', "'", 'r', 's', 't', 'w', 'y');
-foreach($ord as $o) {
-  $b = ($o === $q) ? 'alpha-chosen' : '';
-  print "<a href=\"?query=__$o\" class=\"$b\">".strtoupper($o)."</a>&nbsp;&nbsp;\n";
-}
-?>
-    </div>
-  </div>
-</div>
 <?php
 // $path = "http://localhost:8888/";
-$path = "https://amis.moedict.tw/word.php";
+$path = "word.php";
 if(!empty($query)) {
   $query = str_replace('ng', 'g', $query);
   $pdo = new PDO("sqlite:dict-amis.sq3");
@@ -96,7 +60,7 @@ if(!empty($query)) {
     $result = $st->setFetchMode(PDO::FETCH_NUM);
     $ret = array();
     while($row = $st->fetch()) {
-      $ret[] = "<a href=\"$path?$row[0]\">".str_replace('g', 'ng', $row[0])."</a>";
+      $ret[] = "<a href=\"$path?w=$row[0]\">".str_replace('g', 'ng', $row[0])."</a>";
     }
     return $ret;
   }
